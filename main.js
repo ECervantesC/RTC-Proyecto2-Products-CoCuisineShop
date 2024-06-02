@@ -1,3 +1,4 @@
+/* Estos son los datos de los productos que hay en la tienda */
 const products = [
   {
     id: 1,
@@ -369,9 +370,11 @@ const products = [
     availability: true
   }
 ]
+/* Se definen las funciones*/
+/* Funciones auxiliares para extraer categorías de productos, precio máximos que se utilizarán para la sección de filtros y productos en oferta*/
 const filterCategories = (productArray) => {
   const categoriesNotSorted = []
-  for (const product of products) {
+  for (const product of productArray) {
     if (!categoriesNotSorted.includes(product.type)) {
       categoriesNotSorted.push(product.type)
     }
@@ -388,6 +391,17 @@ const maxPrice = (productArray) => {
   const max = Math.max(...arrayPrice)
   return max
 }
+const filterProductsOffer = (productsArray) => {
+  const productsFiltered = []
+  for (const product of productsArray) {
+    //condicinal existe precio de oferta
+    if (product.hasOwnProperty('offerPrice')) {
+      productsFiltered.push(product)
+    }
+  }
+  return productsFiltered
+}
+/* Funciones de filtrado por tipo de producto y por precio*/
 const filterProductsType = (productsArray, category) => {
   const productsFiltered = []
   for (const product of productsArray) {
@@ -406,38 +420,8 @@ const filterProductsPrice = (productsArray, price) => {
   }
   return productsFiltered
 }
-const filterProductsOffer = (productsArray) => {
-  const productsFiltered = []
-  for (const product of productsArray) {
-    //condicinal existe precio de oferta
-    if (product.hasOwnProperty('offerPrice')) {
-      productsFiltered.push(product)
-    }
-  }
-  return productsFiltered
-}
-const printProductsOffer = (productsArray) => {
-  // creamos elementos
-  // productsSection.innerHTML = ''
-  const productsSection = document.querySelector('#products')
-  const productsOfferContainer = document.createElement('div')
-  const productsOfferH1 = document.createElement('h1')
-  const productsOfferH3 = document.createElement('h3')
+/* Funciones para pintar en pantalla: filtros, productos y productos en oferta cuando no haya productos que cumplan los requisitos del filtro*/
 
-  // damos contenido a los elementos y clases
-  productsOfferContainer.className = 'offerContainer'
-  productsOfferH1.textContent =
-    'No hay productos con las condiciones seleccionadas'
-  productsOfferH3.textContent = 'Productos en oferta sugeridos'
-
-  // añadimos elementos al HTML
-  productsOfferContainer.appendChild(productsOfferH1)
-  productsOfferContainer.appendChild(productsOfferH3)
-  // productsOfferContainer.appendChild(cardsContainer)
-  productsSection.appendChild(productsOfferContainer)
-  printProducts(productsArray)
-}
-// en esta funcion se pone funcion de productso o encontrados
 const printFilters = (categoriesArray, arrayProducts) => {
   const filtersSection = document.querySelector('#filters')
   //creo los filtros
@@ -574,9 +558,30 @@ const printProducts = (productArray) => {
   productsSection.appendChild(productsH1)
   productsSection.appendChild(cardsContainer)
 }
+const printProductsOffer = (productsArray) => {
+  const productsSection = document.querySelector('#products')
+  const productsOfferContainer = document.createElement('div')
+  const productsOfferH1 = document.createElement('h1')
+  const productsOfferH3 = document.createElement('h3')
+
+  // damos contenido a los elementos y clases
+  productsOfferContainer.className = 'offerContainer'
+  productsOfferH1.textContent =
+    'No hay productos con las condiciones seleccionadas'
+  productsOfferH3.textContent = 'Productos en oferta sugeridos'
+
+  // añadimos elementos al HTML
+  productsOfferContainer.appendChild(productsOfferH1)
+  productsOfferContainer.appendChild(productsOfferH3)
+  // productsOfferContainer.appendChild(cardsContainer)
+  productsSection.appendChild(productsOfferContainer)
+  printProducts(productsArray)
+}
+/* Fin de funciones*/
+/* Extracción de datos: array de categorías y se le añade una categoría para pruebas; array de prpductos en oferta */
 const categories = filterCategories(products)
-// Add an extra category to test "Productos no encontrados"
 categories.push('Alimentación')
 const productsOffer = filterProductsOffer(products)
+/* Pintamos los filtros y los productos */
 printFilters(categories, products)
 printProducts(products)
