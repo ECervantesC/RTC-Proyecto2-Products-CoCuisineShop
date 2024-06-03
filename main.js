@@ -402,26 +402,28 @@ const filterProductsOffer = (productsArray) => {
   return productsFiltered
 }
 /* Funciones de filtrado por tipo de producto y por precio*/
-const filterProductsType = (productsArray, category) => {
-  const productsFiltered = []
-  for (const product of productsArray) {
-    if (product.type === category) {
-      productsFiltered.push(product)
+const filterProducts = (productsArray, categoryArray, price) => {
+  let productsFiltered = []
+  if (categoryArray.length === 0) {
+    for (const product of productsArray) {
+      if (product.price <= price) {
+        productsFiltered.push(product)
+      }
     }
-  }
-  return productsFiltered
-}
-const filterProductsPrice = (productsArray, price) => {
-  const productsFiltered = []
-  for (const product of productsArray) {
-    if (product.price <= price) {
-      productsFiltered.push(product)
+  } else {
+    for (const cat of categoryArray) {
+      for (const product of productsArray) {
+        if (product.type === cat) {
+          if (product.price <= price) {
+            productsFiltered.push(product)
+          }
+        }
+      }
     }
   }
   return productsFiltered
 }
 /* Funciones para pintar en pantalla: filtros, productos y productos en oferta cuando no haya productos que cumplan los requisitos del filtro*/
-
 const printFilters = (categoriesArray, arrayProducts) => {
   const filtersSection = document.querySelector('#filters')
   //creo los filtros
@@ -463,38 +465,38 @@ const printFilters = (categoriesArray, arrayProducts) => {
   filtersSection.appendChild(filterPriceDiv)
   filtersSection.appendChild(buttonFilterDelete)
   // añado listeners
+  // let productsToPrint = [...arrayProducts]
+  categoriesToPrint = []
+  priceToPrint = maxPrice(arrayProducts)
   filterType.addEventListener('input', (e) => {
     productsSection.innerHTML = ''
-    const productsFilterdType = filterProductsType(
-      arrayProducts,
-      e.target.value
-    )
     if (e.target.value === 'Todas las categorías') {
-      printProducts(arrayProducts)
-    } else if (productsFilterdType.length === 0) {
-      printProductsOffer(productsOffer)
+      categoriesToPrint = []
     } else {
-      printProducts(productsFilterdType)
+      categoriesToPrint = []
+      categoriesToPrint.push(e.target.value)
     }
+    printProducts(
+      filterProducts(arrayProducts, categoriesToPrint, priceToPrint)
+    )
   })
   filterPrice.addEventListener('input', (e) => {
     priceRange.textContent = '0€ - ' + e.target.value + '€'
     productsSection.innerHTML = ''
-    const productsFilterdPrice = filterProductsPrice(products, e.target.value)
-    if (productsFilterdPrice.length === 0) {
-      console.log('No hay productos')
-      printProductsOffer(productsOffer)
-    } else {
-      printProducts(productsFilterdPrice)
-    }
+    priceToPrint = e.target.value
+    printProducts(
+      filterProducts(arrayProducts, categoriesToPrint, priceToPrint)
+    )
   })
   buttonFilterDelete.addEventListener('click', function () {
     productsSection.innerHTML = ''
-    //por aqui
     filterType.value = 'Todas las categorías'
     filterPrice.value = 0
     priceRange.textContent = '0€ - ' + maxPrice(arrayProducts) + '€'
-    printProducts(products)
+    productsToPrint = [...arrayProducts]
+    categoriesToPrint = []
+    priceToPrint = maxPrice(arrayProducts)
+    printProducts(arrayProducts)
   })
 }
 const printProducts = (productArray) => {
@@ -543,7 +545,6 @@ const printProducts = (productArray) => {
     }
     // voy por aqui
     if (!productElement.availability) {
-      console.log('Producto agotado')
       const productAvailability = document.createElement('p')
       productAvailability.className = 'availability'
       productAvailability.textContent = 'Producto agotado'
@@ -582,6 +583,8 @@ const printProductsOffer = (productsArray) => {
 const categories = filterCategories(products)
 categories.push('Alimentación')
 const productsOffer = filterProductsOffer(products)
+/* Creo una variable con una copia de products y la utilizo para pintar productos*/
+let productsToPrint = [...products]
 /* Pintamos los filtros y los productos */
-printFilters(categories, products)
-printProducts(products)
+printFilters(categories, productsToPrint)
+printProducts(productsToPrint)
